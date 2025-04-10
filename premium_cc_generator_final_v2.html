@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CC Generator V2</title>
+  <style>
+    body {
+      background: #0f172a;
+      color: #f1f5f9;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .card-box {
+      background: #1e293b;
+      padding: 30px;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    h2 {
+      text-align: center;
+      color: #38bdf8;
+    }
+    label {
+      font-size: 14px;
+      display: block;
+      margin-top: 12px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      background: #334155;
+      color: white;
+      border: none;
+      margin-top: 6px;
+      font-size: 14px;
+    }
+    button {
+      margin-top: 15px;
+      width: 100%;
+      background: #0ea5e9;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0284c7;
+    }
+    .output {
+      background: #0f172a;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 20px;
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+    .footer {
+      text-align: center;
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card-box">
+    <h2>CC Generator V2</h2>
+
+    <label for="bin">BIN (e.g. 414720xxxxxx)</label>
+    <input id="bin" type="text" placeholder="Enter BIN" />
+
+    <label for="qty">Quantity</label>
+    <input id="qty" type="number" value="10" />
+
+    <label for="month">Expiry Month</label>
+    <select id="month">
+      <option value="">MM</option>
+      <option value="01">01</option><option value="02">02</option><option value="03">03</option>
+      <option value="04">04</option><option value="05">05</option><option value="06">06</option>
+      <option value="07">07</option><option value="08">08</option><option value="09">09</option>
+      <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+    </select>
+
+    <label for="year">Expiry Year</label>
+    <select id="year">
+      <option value="">YYYY</option>
+      <script>
+        let y = new Date().getFullYear();
+        for(let i = 0; i < 12; i++) {
+          document.write(`<option value="${y+i}">${y+i}</option>`);
+        }
+      </script>
+    </select>
+
+    <label for="cvv">CVV (leave empty for random)</label>
+    <input id="cvv" type="text" placeholder="123 or random" />
+
+    <button onclick="generate()">Generate</button>
+    <div class="output" id="output"></div>
+    <div class="footer">Inspired by Raju Bhai</div>
+  </div>
+
+  <script>
+    function randomNum(n) {
+      let str = '';
+      for (let i = 0; i < n; i++) {
+        str += Math.floor(Math.random() * 10);
+      }
+      return str;
+    }
+
+    function luhn(card) {
+      let sum = 0, alt = false;
+      for (let i = card.length - 1; i >= 0; i--) {
+        let n = parseInt(card[i]);
+        if (alt) {
+          n *= 2;
+          if (n > 9) n -= 9;
+        }
+        sum += n;
+        alt = !alt;
+      }
+      return sum % 10 === 0;
+    }
+
+    function generate() {
+      const bin = document.getElementById("bin").value;
+      const qty = parseInt(document.getElementById("qty").value);
+      const mm = document.getElementById("month").value || "10";
+      const yy = document.getElementById("year").value || "2030";
+      const cvvInput = document.getElementById("cvv").value;
+      let result = "";
+      let count = 0;
+
+      while (count < qty) {
+        let card = bin.replace(/x/g, () => randomNum(1));
+        if (luhn(card)) {
+          let cvv = cvvInput || randomNum(3);
+          result += `${card}|${mm}|${yy}|${cvv}
+`;
+          count++;
+        }
+      }
+      document.getElementById("output").textContent = result;
+    }
+  </script>
+</body>
+</html>
